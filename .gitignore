@@ -1,0 +1,5 @@
+commentapienv
+.idea
+
+# Project exclude paths
+/commentsapienv/
