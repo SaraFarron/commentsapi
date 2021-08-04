@@ -1,23 +1,20 @@
-version: '3.3'
+version: "3"
 services:
-    server:
-      build:
-        context: ./
-        dockerfile: ./server/Dockerfile
-      command: python manage.py runserver 0.0.0.0:8000
-      volumes:
-        - ./server:/server
-      ports:
-        - "8000:8000"
-      depends_on:
-        - db
-      environment:
-        DEBUG: 'True'
-        DATABASE_URL: 'postgres://postgres:postgres@db:5432/postgres'
-
-    db:
-      image: postgres:12.4-alpine
-      environment:
-        POSTGRES_DB: postgres
-        POSTGRES_USER: postgres
-        POSTGRES_PASSWORD: postgres
+   db:
+     image: postgres
+     environment:
+       - POSTGRES_DB=postgres
+       - POSTGRES_USER=postgres
+       - POSTGRES_PASSWORD=password
+     ports:
+       - "127.0.0.1:5432:5432"
+   web:
+     build: .
+     command:
+       - python server/manage.py runserver 0.0.0.0:8000
+     volumes:
+       - .:/code
+     ports:
+       - "127.0.0.1:8000:8000"
+     depends_on:
+       - db
