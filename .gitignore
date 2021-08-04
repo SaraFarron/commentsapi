@@ -1,5 +1,2 @@
-commentapienv
+.env
 .idea
-
-# Project exclude paths
-/commentsapienv/

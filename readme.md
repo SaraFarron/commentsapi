@@ -23,3 +23,6 @@
 - Swagger либо иная документация к апи.
 
 Всё остальное (авторизация, админки, тесты) - по желанию, оцениваться не будет
+
+миграция:
+docker-compose exec web python manage.py migrate --noinput
