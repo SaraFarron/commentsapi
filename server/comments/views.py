@@ -1,27 +1,44 @@
 from rest_framework.views import APIView
 from posts.models import Post
 from .models import Comment
+from .serializers import CommentSerializer
 from rest_framework.response import Response
+from django.core.exceptions import ObjectDoesNotExist
 
 
-class GetComments(APIView):
+class Comments(APIView):
     def get(self, request):
-        if request.post in Post.objects.all():
-            comments = Comment.objects.get(post=request.post)
-            # serializer
-            return Response(status=200)
-        else:
-            return Response({'error': f'не существует статьи "{request.post}"'}, status=404)
+        title = request.data.get('title')
+        try:
+            post = Post.objects.get(title=title)
+        except ValueError:
+            return Response(
+                {'error': f'не существует статьи {title}'},
+                status=404)
+        try:
+            comments = Comment.objects.filter(post=post)
+        except ObjectDoesNotExist:
+            return Response({}, status=200)
+        serializer = CommentSerializer(data=comments, many=True)
+        if serializer.is_valid():
+            serializer.save()
+        return Response(serializer.data, status=200)
 
-
-class AddComment(APIView):
     def post(self, request):
-        if request.post in Post.objects.all():
+        title = request.data.get('title')
+        try:
+            post = Post.objects.get(title=title)
+        except ValueError:
+            return Response(
+                {'error': f'не существует статьи {title}'},
+                status=404)
+        if post in Post.objects.all():
             comment = Comment.objects.create(
-                text=request.text,
-                post=request.post
-            )
+                text=request.data.get('text'),
+                post=post)
             comment.save()
             return Response(status=200)
         else:
-            return Response({'error': f'не существует статьи "{request.post}"'}, status=404)
+            return Response(
+                {'error': fr'не существует статьи "{request.data.get("title")}"'},
+                status=404)
