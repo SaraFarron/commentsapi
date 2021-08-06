@@ -4,6 +4,7 @@ from .models import Comment
 from .serializers import CommentSerializer
 from rest_framework.response import Response
 from django.core.exceptions import ObjectDoesNotExist
+from django.db import IntegrityError
 
 
 class Comments(APIView):
@@ -11,12 +12,14 @@ class Comments(APIView):
         post_id = request.data.get('post')
         try:
             post = Post.objects.get(id=post_id)
+
         except ObjectDoesNotExist:
             return Response(
                 {'error': f'не существует статьи {post_id}'},
                 status=404)
         try:
             comments = Comment.objects.filter(post=post)
+
         except ObjectDoesNotExist:
             return Response({}, status=200)
         serializer = CommentSerializer(data=comments, many=True)
@@ -34,9 +37,15 @@ class Comments(APIView):
                 post=post)
             comment.save()
             return Response(status=200)
+
         except ObjectDoesNotExist:
-            parent_comment = Comment.objects.get(id=comment_id)
-            post = Post.objects.get(id=parent_comment.post.id)
+            try:
+                parent_comment = Comment.objects.get(id=comment_id)
+                post = Post.objects.get(id=parent_comment.post.id)
+            except ObjectDoesNotExist:
+                return Response(
+                    {'error': f'не существует статьи {post_id} или комментария {comment_id}'},
+                    status=404)
             comment = Comment.objects.create(
                 text=request.data.get('text'),
                 post=post
@@ -45,7 +54,13 @@ class Comments(APIView):
             parent_comment.child_comments.add(comment)
             parent_comment.save()
             return Response(status=200)
+
         except ValueError:
             return Response(
                 {'error': f'не существует статьи/комментария {post_id}/{comment_id}'},
                 status=404)
+
+        except IntegrityError:
+            return Response(
+                {'error': 'укажите text в теле запроса'},
+                status=400)
