@@ -7,4 +7,5 @@ class CommentSerializer(ModelSerializer):
 
     class Meta:
         model = Comment
-        fields = ['text', 'post']
+        fields = '__all__'
+        depth = 3
