@@ -21,12 +21,28 @@ API имеет 2 адреса: http://localhost:8000/comments/ и http://localho
 
 * /comments
 
-    * get запрос выдает все комментарии под указанной статьей, необходимо указать id статьи (post) в теле запроса
+    * get запрос выдает все комментарии под указанной статьей, необходимо указать id статьи (post) или комментария (comment) в теле запроса
     * post запрос позволяет создать новый комментарий, существует 2 сценария использования:
         * в теле запроса указан post (id статьи) - создается комментарий к статье
         * в теле запроса указан comment (id комментария) - создается ответ на указанный комментарий, на 1 комментарий можно создать несколько ответов
     
-    В обоих случаях в post необходимо указывать text в теле с текстом комментария
+      В обоих случаях в post необходимо указывать text в теле с текстом комментария
+
+Пример запроса для создания статьи:
+
+curl
+
+    curl --location --request POST 'http://localhost:8000/posts' \
+    --form 'title="Test post 2"'
+
+python requests
+
+    import requests
+    
+    url = "http://localhost:8000/posts"
+    payload={'title': 'Test post 2'}
+    response = requests.request("POST", url, data=payload)
+    print(response.text)
 
 Задание: Реализовать REST API для системы комментариев блога.
 ------
@@ -53,7 +69,3 @@ API имеет 2 адреса: http://localhost:8000/comments/ и http://localho
 - Swagger либо иная документация к апи.
 
 Всё остальное (авторизация, админки, тесты) - по желанию, оцениваться не будет
-
-миграция:
-docker-compose exec web python manage.py makemigrations
-docker-compose exec web python manage.py migrate

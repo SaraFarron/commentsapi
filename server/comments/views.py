@@ -10,18 +10,19 @@ from django.db import IntegrityError
 class Comments(APIView):
     def get(self, request):
         post_id = request.data.get('post')
+        comment_id = request.data.get('comment')
         try:
             post = Post.objects.get(id=post_id)
-
-        except ObjectDoesNotExist:
-            return Response(
-                {'error': f'не существует статьи {post_id}'},
-                status=404)
-        try:
             comments = Comment.objects.filter(post=post)
 
         except ObjectDoesNotExist:
-            return Response({}, status=200)
+            try:
+                comments = Comment.objects.get(id=comment_id).child_comments
+            except ObjectDoesNotExist:
+                return Response(
+                    {'error': f'не существует комментария {comment_id}'},
+                    status=404)
+
         serializer = CommentSerializer(data=comments, many=True)
         if serializer.is_valid():
             serializer.save()
@@ -41,10 +42,10 @@ class Comments(APIView):
         except ObjectDoesNotExist:
             try:
                 parent_comment = Comment.objects.get(id=comment_id)
-                # post = Post.objects.get(id=parent_comment.post.id)
+
             except ObjectDoesNotExist:
                 return Response(
-                    {'error': f'не существует статьи {post_id} или комментария {comment_id}'},
+                    {'error': f'не существует комментария {comment_id}'},
                     status=404)
             comment = Comment.objects.create(
                 text=request.data.get('text'),
@@ -57,7 +58,7 @@ class Comments(APIView):
 
         except ValueError:
             return Response(
-                {'error': f'не существует статьи/комментария {post_id}/{comment_id}'},
+                {'error': f'не существует статьи {post_id} или комментария {comment_id}'},
                 status=404)
 
         except IntegrityError:
