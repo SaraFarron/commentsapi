@@ -44,6 +44,12 @@ python requests
     response = requests.request("POST", url, data=payload)
     print(response.text)
 
+Пример запроса для получения ответов на комментарий
+
+    curl --location --request GET 'http://localhost:8000/comments' \
+    --form 'text="Comment 8"' \
+    --form 'comment="22"'
+
 Задание: Реализовать REST API для системы комментариев блога.
 ------
 Функциональные требования:
