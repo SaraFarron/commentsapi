@@ -41,14 +41,14 @@ class Comments(APIView):
         except ObjectDoesNotExist:
             try:
                 parent_comment = Comment.objects.get(id=comment_id)
-                post = Post.objects.get(id=parent_comment.post.id)
+                # post = Post.objects.get(id=parent_comment.post.id)
             except ObjectDoesNotExist:
                 return Response(
                     {'error': f'не существует статьи {post_id} или комментария {comment_id}'},
                     status=404)
             comment = Comment.objects.create(
                 text=request.data.get('text'),
-                post=post
+                post=None
             )
             comment.save()
             parent_comment.child_comments.add(comment)

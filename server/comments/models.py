@@ -4,7 +4,7 @@ from posts.models import Post
 
 class Comment(models.Model):
     text = models.TextField()
-    post = models.ForeignKey(Post, on_delete=models.CASCADE)
+    post = models.ForeignKey(Post, on_delete=models.CASCADE, null=True)
     child_comments = models.ManyToManyField('Comment')
 
     def __str__(self):
